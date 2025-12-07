@@ -10,7 +10,6 @@ func _ready() -> void:
 		inherit_type()
 
 func collapse():
-	print(weighted_entropy)
 	type = weighted_entropy.pick_random()
 	inherit_type()
 	update_neighbors()
@@ -22,7 +21,6 @@ func update_neighbors():
 	get_parent().get_child_at(coords[0], coords[1] + 1).update_entropy()
 	
 func inherit_type():
-	print("type: ", type)
 	entropy = 999
 	$ColorRect.color = Globals.tile_types[type][1]
 
@@ -39,40 +37,28 @@ func add_to_weighted_entropy(list_to_add):
 				weighted_entropy.append(item)
 			
 func update_entropy():
-	if type == 0:
+	if type == 0 and get_parent():
 		if get_parent().get_child_at(coords[0] - 1, coords[1]).type > 0:
-			print("111111")
-			weighted_entropy = Globals.tile_types.get(get_parent().get_child_at(coords[0] - 1, coords[1]).type)[0]
-			add_to_weighted_entropy(Globals.tile_types.get(get_parent().get_child_at(coords[0] + 1, coords[1]).type)[0])
-			add_to_weighted_entropy(Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] - 1).type)[0])
-			print("CRASHES SOMEWHERE HERE???")
-			add_to_weighted_entropy(Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] + 1).type)[0])
+			weighted_entropy = Globals.tile_types.get(get_parent().get_child_at(coords[0] - 1, coords[1]).type)[0].duplicate()
+			add_to_weighted_entropy(Globals.tile_types.get(get_parent().get_child_at(coords[0] + 1, coords[1]).type)[0].duplicate())
+			add_to_weighted_entropy(Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] - 1).type)[0].duplicate())
+			add_to_weighted_entropy(Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] + 1).type)[0].duplicate())
 		elif get_parent().get_child_at(coords[0] + 1, coords[1]).type > 0:
-			print("222222")
-			weighted_entropy = Globals.tile_types.get(get_parent().get_child_at(coords[0] + 1, coords[1]).type)[0]
-			add_to_weighted_entropy(Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] - 1).type)[0])
-			print("CRASHES SOMEWHERE HERE???")
-			add_to_weighted_entropy(Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] + 1).type)[0])
+			weighted_entropy = Globals.tile_types.get(get_parent().get_child_at(coords[0] + 1, coords[1]).type)[0].duplicate()
+			add_to_weighted_entropy(Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] - 1).type)[0].duplicate())
+			add_to_weighted_entropy(Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] + 1).type)[0].duplicate())
 		elif get_parent().get_child_at(coords[0], coords[1] - 1).type > 0:
-			print("333333")
-			weighted_entropy = Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] - 1).type)[0]
-			print("CRASHES SOMEWHERE HERE???")
-			add_to_weighted_entropy(Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] + 1).type)[0])
+			weighted_entropy = Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] - 1).type)[0].duplicate()
+			add_to_weighted_entropy(Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] + 1).type)[0].duplicate())
 		elif get_parent().get_child_at(coords[0], coords[1] + 1).type > 0:
-			print("444444")
-			weighted_entropy = Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] + 1).type)[0]
-			print("CRASHES SOMEWHERE HERE???")
+			weighted_entropy = Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] + 1).type)[0].duplicate()
 		else:
-			print("AAAAAA")
 			weighted_entropy = [1, 2, 3, 4]
-		print("starting_keying")
 		var temp_dict = Dictionary()
 		for item in weighted_entropy:
 			temp_dict[item] = true
 		entropy = len(temp_dict.keys())
-		print("finished_keying")
 		if entropy == 0:
 			entropy = 999
-		print("entropy ", entropy)
 	else:
 		entropy = 999
