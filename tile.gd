@@ -22,6 +22,7 @@ func update_neighbors():
 	
 func inherit_type():
 	entropy = 999
+	$Label.text = str(entropy) if entropy != 999 else 'T' + str(type)
 	$ColorRect.color = Globals.tile_types[type][1]
 
 func add_to_weighted_entropy(list_to_add):
@@ -62,3 +63,4 @@ func update_entropy():
 			entropy = 999
 	else:
 		entropy = 999
+	$Label.text = str(entropy) if entropy != 999 else 'T' + str(type)
