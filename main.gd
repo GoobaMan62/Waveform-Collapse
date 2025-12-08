@@ -5,7 +5,8 @@ var grid = []
 var temp
 const width = 24
 const height = 12
-var delay = 0.05
+const base_delay = 0.01
+var delay = base_delay
 var start = [
 	[[width / 2 - 2, width / 2 - 1, width / 2, width / 2 + 1, width / 2 + 2].pick_random(), 
 	[height / 2 - 2, height / 2 - 1, height / 2, height / 2 + 1, height / 2 + 2].pick_random()]]
@@ -15,12 +16,12 @@ func _process(delta: float) -> void:
 	if Input.is_action_pressed('ui_accept'):
 		delay = 1
 	else:
-		delay = 0.05
+		delay = base_delay
 
 func _ready() -> void:
 	offset = Vector2(width*32, height*32)
-	start = [[3, 3], [22, 10]]
-	choices = [[5, 6], [3, 4]]
+	start = [[3, 3], [21, 9]]
+	choices = [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]]
 	var special = []
 	for i in width:
 		grid.append([])
@@ -53,14 +54,14 @@ func collapse():
 		options.erase(child)
 	if lowest_child:
 		lowest_child.get_child(0).color = Color.DEEP_PINK
-		await get_tree().create_timer(delay).timeout
+		# await get_tree().create_timer(delay).timeout
 		lowest_child.collapse()
-		#await get_tree().create_timer(0.04).timeout
+		await get_tree().create_timer(delay).timeout
 		collapse()
 	else:
 		print("DONE")
-		await get_tree().create_timer(3).timeout
-		#get_tree().reload_current_scene()
+		await get_tree().create_timer(1).timeout
+		get_tree().reload_current_scene()
 
 func get_child_at(x, y):
 	if -1 < x and x < len(grid):

@@ -3,7 +3,7 @@ extends Node2D
 @export var type = 0
 var coords = [-999, -999]
 var entropy = Globals.tile_type_count
-var weighted_entropy = [1, 2, 3, 4, 5, 6]
+var weighted_entropy = Globals.tile_types.keys().slice(1)
 var possibilities = Globals.tile_types.keys().slice(1)
 var updated = false
 var is_selected = false
@@ -33,8 +33,8 @@ func _process(delta: float) -> void:
 	time += delta
 	if time >= 0.5 and is_selected:
 		time = 0
-		print("poss: ", possibilities)
-		print("wentropy: ", weighted_entropy)
+		# print("poss: ", possibilities)
+		# print("wentropy: ", weighted_entropy)
 		
 func add_to_weighted_entropy(list_to_add):
 	if list_to_add:
@@ -50,6 +50,7 @@ func add_to_weighted_entropy(list_to_add):
 	
 func update_entropy(depth = 0):
 	if not updated:
+		updated = true
 		if type == 0 and get_parent():
 			if get_parent().get_child_at(coords[0] - 1, coords[1]).type > 0:
 				weighted_entropy = Globals.tile_types.get(get_parent().get_child_at(coords[0] - 1, coords[1]).type)[0].duplicate()
@@ -66,44 +67,34 @@ func update_entropy(depth = 0):
 			elif get_parent().get_child_at(coords[0], coords[1] + 1).type > 0:
 				weighted_entropy = Globals.tile_types.get(get_parent().get_child_at(coords[0], coords[1] + 1).type)[0].duplicate()
 			else:
-				if len(possibilities) == Globals.tile_type_count:
-					weighted_entropy = []
-				else:
-					weighted_entropy = possibilities    
-				var possible_possibilties = {}
-				var true_somewhere = false
+				weighted_entropy = []
+				var possible_possibilities = {}
+				for poss in possibilities:
+					possible_possibilities[poss] = true
 				for neighbor in [
 					get_parent().get_child_at(coords[0] - 1, coords[1]),
 					get_parent().get_child_at(coords[0] + 1, coords[1]),
 					get_parent().get_child_at(coords[0], coords[1] - 1),
 					get_parent().get_child_at(coords[0], coords[1] + 1)]:
-					true_somewhere = false
-					for key in possible_possibilties.keys():
-						true_somewhere = possible_possibilties[key] or true_somewhere
-					if len(possible_possibilties.keys()) == 0 or not true_somewhere:
-						for pos in neighbor.possibilities:
-							for poss in Globals.tile_types[pos][0]:
-								possible_possibilties[pos] = true
-					else:
-						for pos in possible_possibilties.keys():
-							for poss in Globals.tile_types[pos][0]:
-								if not (poss in neighbor.possibilities):
-									possible_possibilties[poss] = false
-				for key in possible_possibilties.keys():
-					if possible_possibilties[key]:
-						weighted_entropy += Globals.tile_types[key][0].duplicate()
+					var exists = false
+					for pos in possible_possibilities.keys():
+						exists = false
+						for neighposs in neighbor.possibilities:
+							if pos in Globals.tile_types[neighposs][0]:
+								exists = true
+						if not exists:
+							possible_possibilities[pos] = false
+				for key in possible_possibilities.keys():
+					if possible_possibilities[key]:
+						weighted_entropy.append(key)
 			var temp_dict = Dictionary()
 			for item in weighted_entropy:
 				temp_dict[item] = true
 			entropy = len(temp_dict.keys())
 			possibilities = temp_dict.keys().duplicate()
-			if entropy == 1:
-				print("waow")
 			if entropy == 0:
 				entropy = 999
-			elif entropy < Globals.tile_type_count:
-				updated = true
-				update_neighbors(depth + 1)
+			update_neighbors(depth + 1)
 		elif get_parent():
 			entropy = 999
 		$Label.text = str(entropy) if entropy != 999 else 'T' + str(type)
