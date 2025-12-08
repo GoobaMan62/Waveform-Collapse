@@ -10,8 +10,7 @@ var is_selected = false
 var time = 0
 
 func _ready() -> void:
-	if type:
-		inherit_type()
+	inherit_type()
 
 func collapse():
 	type = weighted_entropy.pick_random()
@@ -98,6 +97,10 @@ func update_entropy(depth = 0):
 		elif get_parent():
 			entropy = 999
 		$Label.text = str(entropy) if entropy != 999 else 'T' + str(type)
+		if entropy == 999 and type == 0:
+			if not Globals.dont_retry:
+				get_tree().call_deferred("reload_current_scene")
+				Globals.dont_retry = true
 
 
 func _on_color_rect_mouse_entered() -> void:
