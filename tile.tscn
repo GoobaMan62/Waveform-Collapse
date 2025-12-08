@@ -17,3 +17,6 @@ offset_bottom = 64.0
 offset_right = 40.0
 offset_bottom = 23.0
 label_settings = SubResource("LabelSettings_n3f48")
+
+[connection signal="mouse_entered" from="ColorRect" to="." method="_on_color_rect_mouse_entered"]
+[connection signal="mouse_exited" from="ColorRect" to="." method="_on_color_rect_mouse_exited"]

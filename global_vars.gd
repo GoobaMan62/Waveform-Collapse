@@ -10,4 +10,4 @@ var tile_types: Dictionary = {
 	6: [[6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5], Color.LIGHT_CYAN, "Ice"]
 	}
 
-var tile_type_count = 7
+var tile_type_count = 6
