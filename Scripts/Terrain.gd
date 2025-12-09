@@ -7,6 +7,7 @@ extends MeshInstance3D
 @export var NOISE: FastNoiseLite
 @export var FLAT_SHADED := false
 @export var TERRAIN_TERRACE:int = 1
+var grid
 
 @export var GENERATE: bool:
 	set(value):
@@ -14,9 +15,87 @@ extends MeshInstance3D
 		generate()
 		var elapsed = (Time.get_ticks_msec()-time)/1000.0
 		print("Terrain generated in: " + str(elapsed) + "s")
+		
+func sample_clamped(x, y, w, h, img):
+	x = clamp(x, 0, w - 1)
+	y = clamp(y, 0, h - 1)
+	return img.get_pixel(x, y)
+		
+func gaussian_kernel(radius: int, sigma: float) -> Array:
+	var kernel := []
+	var sum := 0.0
+	for i in range(-radius, radius + 1):
+		var v := exp(-(i * i) / (2.0 * sigma * sigma))
+		kernel.append(v)
+		sum += v
+	# normalize
+	for i in range(kernel.size()):
+		kernel[i] /= sum
+	return kernel
 
+
+func blur_image(src: Image, radius: int, sigma: float = -1.0) -> Image:
+	if sigma <= 0.0:
+		sigma = radius * 0.5
+	
+	var kernel := gaussian_kernel(radius, sigma)
+	
+	var img := src.duplicate()
+	var w = img.get_width()
+	var h = img.get_height()
+	
+	var out := Image.new()
+	out = out.create_empty(w, h, false, img.get_format())
+	
+	var temp := []
+	temp.resize(w * h)
+	
+	# ---- Horizontal pass ----
+	for y in h:
+		for x in w:
+			var col := Color(0, 0, 0, 0)
+			for i in range(-radius, radius + 1):
+				var sample_x = clamp(x + i, 0, w - 1)
+				col += img.get_pixel(sample_x, y) * kernel[i + radius]
+			temp[y * w + x] = col
+	
+	# ---- Vertical pass ----
+	for y in range(h):
+		for x in range(w):
+			# using tabs:
+			var col := Color(0, 0, 0, 0)
+			for i in range(-radius, radius + 1):
+				var sample_y = clamp(y + i, 0, h - 1)
+				col += temp[sample_y * w + x] * kernel[i + radius]
+			out.set_pixel(x, y, col)
+	
+	return out
+
+	
 func _ready():
 	NOISE.seed = randi()
+	grid = Globals.grid
+	
+	var image = Image.create(700, 700, false, Image.FORMAT_RGBA8)
+	
+	for i in 14:
+		for j in 14:
+			for x in 50:
+				for y in 50:
+					image.set_pixel(i * 50 + x, j * 50 + y, grid[i][j][0])
+		
+	var color_texture = ImageTexture.create_from_image(image)
+	
+	Globals.set_mapview(color_texture.duplicate())
+	color_texture.set_image(blur_image(color_texture.get_image(), 25, -1))
+	# Assign the texture to the shader uniform
+	var material = ShaderMaterial.new()
+	material.shader = load("res://walking_around.gdshader")
+	material.set_shader_parameter("color_map_texture", color_texture)
+	material.set_shader_parameter("map_size", float(700))
+	material.set_shader_parameter("world_size", 280)
+	set_surface_override_material(0, material)
+	print("Generated Surface! Starting Mesh Generation!")
 	GENERATE = true
 
 const TRIANGULATIONS = [
@@ -327,8 +406,8 @@ func generate():
 	for x in range(1, voxel_grid.resolution-1):
 		for y in range(1, voxel_grid.resolution-1):
 			for z in range(1, voxel_grid.resolution-1):
-				var value = NOISE.get_noise_3d(x, y, z)+(y+y%TERRAIN_TERRACE)/float(voxel_grid.resolution)-0.5
-				voxel_grid.write(x, y, z, value)
+				var value = NOISE.get_noise_2d(x, z)+(y+y%TERRAIN_TERRACE)/float(voxel_grid.resolution)-0.5
+				voxel_grid.write(x, y * 0.2 + grid[floor(x / 10)][floor(y / 10)][1] * 5, z, value)
 	
 	#march
 	var vertices = PackedVector3Array()

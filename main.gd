@@ -1,4 +1,4 @@
-extends Node2D
+extends SubViewport
 
 var tile = preload("tile.tscn")
 var grid = []
@@ -19,7 +19,6 @@ func _process(delta: float) -> void:
 		delay = base_delay
 
 func _ready() -> void:
-	Globals.grid = grid
 	Globals.dont_retry = false
 	$Camera.offset = Vector2(width*32, height*32)
 	# start = [[3, 3], [9, 9]]
@@ -62,6 +61,12 @@ func collapse():
 		collapse()
 	else:
 		await get_tree().create_timer(0.3).timeout
+		var gridn = []
+		for i in grid:
+			gridn.append([])
+			for j in i:
+				gridn[-1].append([j.get_child(0).color, Globals.tile_types[j.type][3]])
+		Globals.grid = gridn
 		get_tree().change_scene_to_file("res://walking_around.tscn")
 
 func get_child_at(x, y):

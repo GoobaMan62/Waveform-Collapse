@@ -102,10 +102,8 @@ func update_entropy(depth = 0):
 				get_tree().call_deferred("reload_current_scene")
 				Globals.dont_retry = true
 
-
 func _on_color_rect_mouse_entered() -> void:
 	is_selected = true
-
 
 func _on_color_rect_mouse_exited() -> void:
 	is_selected = false

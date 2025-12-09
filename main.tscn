@@ -1,8 +1,17 @@
-[gd_scene load_steps=2 format=3 uid="uid://cbo2xdrcb115k"]
+[gd_scene load_steps=3 format=3 uid="uid://cbo2xdrcb115k"]
 
 [ext_resource type="Script" uid="uid://dlgystj4uc3wr" path="res://main.gd" id="1_ig7tw"]
 
-[node name="Main" type="Node2D"]
+[sub_resource type="ViewportTexture" id="ViewportTexture_ig7tw"]
+viewport_path = NodePath("Main")
+
+[node name="TextureRect" type="TextureRect"]
+offset_right = 40.0
+offset_bottom = 40.0
+texture = SubResource("ViewportTexture_ig7tw")
+
+[node name="Main" type="SubViewport" parent="."]
+size = Vector2i(896, 896)
 script = ExtResource("1_ig7tw")
 
-[node name="Camera" type="Camera2D" parent="."]
+[node name="Camera" type="Camera2D" parent="Main"]

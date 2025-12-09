@@ -1,4 +1,4 @@
-extends Node
+extends TextureRect
 # List of each tile type that can be next to it, Color, Name, Height
 var tile_types: Dictionary = {
 	0: [[], Color.BLACK, "Undecided", 0],
@@ -20,3 +20,10 @@ var tile_type_count = len(tile_types)
 var dont_retry = false
 
 var grid
+
+func set_mapview(image: ImageTexture):
+	image.get_image()
+	var img = image.get_image()
+	img.resize(64, 64)
+	image.set_image(img)
+	texture = image

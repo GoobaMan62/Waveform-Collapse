@@ -2,5 +2,5 @@
 
 [ext_resource type="Script" uid="uid://cppl5tvnm1k5a" path="res://global_vars.gd" id="1_f6yec"]
 
-[node name="Globals" type="Node2D"]
+[node name="Globals" type="TextureRect"]
 script = ExtResource("1_f6yec")
